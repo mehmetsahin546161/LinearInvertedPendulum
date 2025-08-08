@@ -45,8 +45,14 @@ double prop;
 double integ;
 double deriv;
 char UART_TX_Buff[250];
-//float k1 = -9.647, k2 = -26.027, k3 = -78.212, k4 = -15.980;
-float k1 = -30.61, k2 = -36.61, k3 = -95.61, k4 = -17.61;
+
+//Önceki float k1 = -30.61, k2 = -36.61, k3 = -95.61, k4 = -17.61;
+float k1 = -92.5099, k2 = -61.2980, k3 = 112.5628, k4 = 20.2584;
+
+float x1;
+float x2;
+float x3;
+float x4;
 
 /* Private function prototypes -----------------------------------------------*/
 static void PolePlc_ThreadFunc(void* arg);
@@ -146,58 +152,64 @@ static void PolePlc_ThreadFunc(void* arg)
 		{
 			if(eventFlags & EVT_FLAG_POLE_PLACEMENT_PERIOD_ELAPSED)
 			{
+				x1 = -MotorEncoder.currAng;
+				x2 = -MotorEncoder.currAngVel;
+				x3 = PendulumEncoder.currAng;
+				x4 = PendulumEncoder.currAngVel;
+				
+				
 				if(fabs(MotorEncoder.currAng) <= 0.3)
 				{
 					if(fabs(RADIAN_TO_DEGREE(PendulumEncoder.currAng)) <= 15.0)
 					{
 						/* Stabilization Controller with Full State Feedback */
-						u = (-k1*MotorEncoder.currAng) + (-k2*MotorEncoder.currAngVel) + (-k3*PendulumEncoder.currAng) + (-k4*PendulumEncoder.currAngVel);
+						u = -k1*x1 - k2*x2 - k3*x3 - k4*x4;
 						
 						if(u >= 0)
 						{
-							MTR_SetDirection(&DC_Motor, MOTOR_TURN_RIGHT);
+							MTR_SetDirection(&DC_Motor, MOTOR_TURN_LEFT);
 						}
 						else
 						{
 							u *= -1;
-							MTR_SetDirection(&DC_Motor, MOTOR_TURN_LEFT);
-						}
-						
-						MTR_SetSpeed(&DC_Motor, u/12.0);
-					}
-					else
-					{
-						/* Swing-Up Controller */
-						alpha = PendulumEncoder.currAng;
-						alpha_dot = PendulumEncoder.currAngVel;
-						
-						f_theta = ((-mp*mp*g*Lp*sin(alpha)*cos(alpha)) + (alpha_dot*alpha_dot*mp*Lp*Jeq*sin(alpha)))/((Jeq*(mp+mc)) - (mp*mp*Lp*Lp*cos(alpha)));
-						b_theta = Jeq/((Jeq*(mp+mc)) - (mp*mp*Lp*Lp*cos(alpha)));
-						E = 0.5*(Jeq*alpha_dot*alpha_dot) + mp*g*Lp*(cos(alpha) - 1);
-						sigma = mp*Lp*alpha_dot*cos(alpha)*(E0 - E);
-						cond = -f_theta/b_theta; 
-						
-						if(sigma*b_theta >= 0)
-						{
-							u = cond - 3;
-						}
-						else
-						{
-							u = cond + 3;
-						}
-						
-						if(u >= 0)
-						{
 							MTR_SetDirection(&DC_Motor, MOTOR_TURN_RIGHT);
 						}
-						else
-						{
-							u *= -1;
-							MTR_SetDirection(&DC_Motor, MOTOR_TURN_LEFT);
-						}
 						
 						MTR_SetSpeed(&DC_Motor, u/12.0);
 					}
+//					else
+//					{
+//						/* Swing-Up Controller */
+//						alpha = PendulumEncoder.currAng;
+//						alpha_dot = PendulumEncoder.currAngVel;
+//						
+//						f_theta = ((-mp*mp*g*Lp*sin(alpha)*cos(alpha)) + (alpha_dot*alpha_dot*mp*Lp*Jeq*sin(alpha)))/((Jeq*(mp+mc)) - (mp*mp*Lp*Lp*cos(alpha)));
+//						b_theta = Jeq/((Jeq*(mp+mc)) - (mp*mp*Lp*Lp*cos(alpha)));
+//						E = 0.5*(Jeq*alpha_dot*alpha_dot) + mp*g*Lp*(cos(alpha) - 1);
+//						sigma = mp*Lp*alpha_dot*cos(alpha)*(E0 - E);
+//						cond = -f_theta/b_theta; 
+//						
+//						if(sigma*b_theta >= 0)
+//						{
+//							u = cond - 3;
+//						}
+//						else
+//						{
+//							u = cond + 3;
+//						}
+//						
+//						if(u >= 0)
+//						{
+//							MTR_SetDirection(&DC_Motor, MOTOR_TURN_RIGHT);
+//						}
+//						else
+//						{
+//							u *= -1;
+//							MTR_SetDirection(&DC_Motor, MOTOR_TURN_LEFT);
+//						}
+//						
+//						MTR_SetSpeed(&DC_Motor, u/12.0);
+//					}
 				}
 				else
 				{
@@ -206,8 +218,8 @@ static void PolePlc_ThreadFunc(void* arg)
 				
 				
 					
-				sprintf(UART_TX_Buff, "%.2f %.2f\r\n", MotorEncoder.currAng, PendulumEncoder.currAng);
-				UART_AsyncTransmit(&huart6, (uint8_t *)UART_TX_Buff, strlen(UART_TX_Buff));
+//				sprintf(UART_TX_Buff, "%.2f %.2f\r\n",x1, x3);
+//				UART_AsyncTransmit(&huart6, (uint8_t *)UART_TX_Buff, strlen(UART_TX_Buff));
 			}
 		}
 	}	

@@ -94,7 +94,7 @@ void APP_Main(void* arg)
 	MTR_Init(&DC_Motor);
 	ENC_Init(&MotorEncoder);
 	ENC_Init(&PendulumEncoder);
-	osDelay(15000);
+	osDelay(1000);
 	PolePlc_Init(&PolePlacement);
 	
   while(1)

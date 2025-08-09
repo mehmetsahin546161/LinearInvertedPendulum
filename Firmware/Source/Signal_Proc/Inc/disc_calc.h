@@ -22,15 +22,15 @@
 
 typedef struct
 {
-	double alpha;
-	double prevFiltVal;
+	float alpha;
+	float prevFiltVal;
 
 }LowpassFilter_Handle;
 
 /* Exported functions --------------------------------------------------------*/
-double GetDiscreteDerivative(double currVal, double * prevVal, double samplingTime);
-double GetDiscreteIntegral(double currVal, double * prevSum, double samplingTime);
-double ApplyLowpassFilter(LowpassFilter_Handle * filter, double currRawVal);
+float GetDiscreteDerivative(float currVal, float * prevVal, float samplingTime);
+float GetDiscreteIntegral(float currVal, float * prevSum, float samplingTime);
+float ApplyLowpassFilter(LowpassFilter_Handle * filter, float currRawVal);
 
 
 #endif	/* DISC_CALC_H */

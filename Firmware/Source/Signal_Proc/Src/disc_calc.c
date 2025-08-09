@@ -9,7 +9,7 @@
 	*	@param[OUT]		
   * @retval 		
   *------------------------------------------------------------------------------*/
-double GetDiscreteDerivative(double currVal, double * prevVal, double samplingTime)
+float GetDiscreteDerivative(float currVal, float * prevVal, float samplingTime)
 {
 	//              ----------------
 	//							|						   |
@@ -21,7 +21,7 @@ double GetDiscreteDerivative(double currVal, double * prevVal, double samplingTi
 	//  y[n] =	---------------
 	//					       T         
 	
-	double out = (currVal - *prevVal)/samplingTime;
+	float out = (currVal - *prevVal)/samplingTime;
 	*prevVal = currVal;
 	return out;
 }
@@ -32,7 +32,7 @@ double GetDiscreteDerivative(double currVal, double * prevVal, double samplingTi
 	*	@param[OUT]		
   * @retval 		
   *------------------------------------------------------------------------------*/
-double GetDiscreteIntegral(double currVal, double * prevSum, double samplingTime)
+float GetDiscreteIntegral(float currVal, float * prevSum, float samplingTime)
 {
 	//              --------------
 	//							|					   |
@@ -42,7 +42,7 @@ double GetDiscreteIntegral(double currVal, double * prevSum, double samplingTime
 	//
 	//  y[n] = y[n-1] + T*u[n]
 	
-	double out = (*prevSum) + ( samplingTime * (currVal) );
+	float out = (*prevSum) + ( samplingTime * (currVal) );
 	*prevSum = out;
 	return out;
 }
@@ -53,9 +53,9 @@ double GetDiscreteIntegral(double currVal, double * prevSum, double samplingTime
 	*	@param[OUT]		
   * @retval 		
   *------------------------------------------------------------------------------*/
-double ApplyLowpassFilter(LowpassFilter_Handle * filter, double currRawVal)
+float ApplyLowpassFilter(LowpassFilter_Handle * filter, float currRawVal)
 {
-	double filtVal = (filter->alpha*currRawVal) + ( (1-(filter->alpha))*filter->prevFiltVal );
+	float filtVal = (filter->alpha*currRawVal) + ( (1-(filter->alpha))*filter->prevFiltVal );
 	filter->prevFiltVal = filtVal;
 	
 	return filtVal;

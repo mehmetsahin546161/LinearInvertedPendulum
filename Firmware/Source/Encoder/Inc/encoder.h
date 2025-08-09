@@ -36,21 +36,21 @@ typedef struct
 	uint16_t cpr;
 	int16_t  count;
 	
-	double gain;
-	double angOffset;
-	double period;
+	float gain;
+	float angOffset;
+	float period;
 	
 	/* Position */
-	double currAng;
-	double prevAng;
+	float currAng;
+	float prevAng;
 	
 	/* Raw Velocity */
-	double rawPrevAngVel;
-	double rawCurrAngVel;
+	float rawPrevAngVel;
+	float rawCurrAngVel;
 	
 	/* Filtered Velocity */
-	double currAngVel;
-	double prevAngVel;
+	float currAngVel;
+	float prevAngVel;
 	
 	/* Lowpass Filter Constants */
 	LowpassFilter_Handle velFilter;

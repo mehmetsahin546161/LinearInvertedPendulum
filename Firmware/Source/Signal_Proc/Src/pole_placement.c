@@ -44,10 +44,27 @@ double out;
 double prop;
 double integ;
 double deriv;
+
 char UART_TX_Buff[250];
 
-//Önceki float k1 = -30.61, k2 = -36.61, k3 = -95.61, k4 = -17.61;
-float k1 = -92.5099, k2 = -61.2980, k3 = 112.5628, k4 = 20.2584;
+float k1 = -92.5099;	//-92.5099;
+float k2 = -61.2980;	//-61.2980;
+float k3 = 112.5628;		//112.5628;
+float k4 = 20.2584; 		//20.2584;
+
+
+               
+       
+
+float ki_x1 = -100;
+
+float stateFeedbackTerm;
+
+float xRef = 0;
+float xErr;
+float xErrPrevSum;
+float xIntegralTerm;
+
 
 float x1;
 float x2;
@@ -162,8 +179,14 @@ static void PolePlc_ThreadFunc(void* arg)
 				{
 					if(fabs(RADIAN_TO_DEGREE(PendulumEncoder.currAng)) <= 15.0)
 					{
+						xErr = xRef - x1;
+						
+						xIntegralTerm = ki_x1*GetDiscreteIntegral(xErr, &xErrPrevSum, DISC_CTRL_PERIOD);
+						
 						/* Stabilization Controller with Full State Feedback */
-						u = -k1*x1 - k2*x2 - k3*x3 - k4*x4;
+						stateFeedbackTerm = -k1*x1 - k2*x2 - k3*x3 - k4*x4;
+						
+						u = stateFeedbackTerm + xIntegralTerm;
 						
 						if(u >= 0)
 						{
@@ -255,22 +278,22 @@ static void PolePlc_CalculateControlSignal(PolePlacement_Handle * controller)
 	
 	for(uint8_t i=0; i<controller->inputCnt; i++)
 	{
-		/* -K*StateVariable */
-		for(uint8_t j=0; j<controller->stateCnt; j++)
-		{
-			sumState += -1*(controller->K[i][j])*(*(controller->stateVector[j]));
-		}
-		
-		/* -Ki*SumOfError */
-		for(uint8_t k=0; k<controller->outputCnt; k++)
-		{
-			err = controller->ref[k] - *(controller->outputVector[k]);
-			sumIntegralErr += -1*(controller->Ki[i][k])*GetDiscreteIntegral(err, &(controller->sumError[i][k]), controller->samplingTime);
-		}
-		
-		controller->inputVector[i] = sumState + sumIntegralErr;
-		
-		sumState = 0;
-		sumIntegralErr = 0;
+//		/* -K*StateVariable */
+//		for(uint8_t j=0; j<controller->stateCnt; j++)
+//		{
+//			sumState += -1*(controller->K[i][j])*(*(controller->stateVector[j]));
+//		}
+//		
+//		/* -Ki*SumOfError */
+//		for(uint8_t k=0; k<controller->outputCnt; k++)
+//		{
+//			err = controller->ref[k] - *(controller->outputVector[k]);
+//			sumIntegralErr += -1*(controller->Ki[i][k])*GetDiscreteIntegral(err, &(controller->sumError[i][k]), controller->samplingTime);
+//		}
+//		
+//		controller->inputVector[i] = sumState + sumIntegralErr;
+//		
+//		sumState = 0;
+//		sumIntegralErr = 0;
 	}
 }
